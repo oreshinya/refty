@@ -1,8 +1,8 @@
 -- |
 -- Module      : Refty
--- Copyright   : (c) 2017 oreshinya
+-- Copyright   : (c) 2017 Shinya Takahashi
 -- License     : MIT
--- Maintainer  : oreshinya <s.takahashi313@gmail.com>
+-- Maintainer  : Shinya Takahashi <s.takahashi313@gmail.com>
 -- Stability   : experimental
 -- Portability : portable
 --
