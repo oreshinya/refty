@@ -10,10 +10,10 @@
 --
 -- Formatted JSON generator for API server inspired by normalizr.
 
-{-# LANGUAGE OverloadedStrings #-}
-{-# LANGUAGE OverloadedLists #-}
-{-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE ExistentialQuantification #-}
+{-# LANGUAGE OverloadedLists           #-}
+{-# LANGUAGE OverloadedStrings         #-}
+{-# LANGUAGE RankNTypes                #-}
 
 module Refty
   ( -- * Usage
@@ -27,6 +27,7 @@ module Refty
   , Reference(..)
   , Builder(..)
   , Refty(..)
+
     -- * Constructor functions
   , resource
   , selfRef
@@ -36,10 +37,10 @@ module Refty
   , refty
   ) where
 
-import Control.Arrow ((&&&))
-import Data.Aeson (ToJSON, ToJSONKey, toJSON, (.=), Value, object)
+import           Control.Arrow ((&&&))
+import           Data.Aeson    (ToJSON, ToJSONKey, Value, object, toJSON, (.=))
 import qualified Data.Map.Lazy as M
-import qualified Data.Text as T
+import qualified Data.Text     as T
 
 -- | Key of JSON.
 type Key = T.Text
@@ -91,12 +92,12 @@ refty = Refty
 reference :: (ToJSON a, ToJSON b, ToJSONKey b, Ord b) => Resource a b -> Reference a b -> (T.Text, Value)
 reference (Resource _ i entity) (SelfRef k) =
   case entity of
-    Left e -> k .= i e
+    Left e   -> k .= i e
     Right es -> k .= map i es
 
 reference (Resource _ i entity) (HasOneRef k ki) = (k .=) $ M.fromList $
   case entity of
-    Left e -> [(ki e, i e)]
+    Left e   -> [(ki e, i e)]
     Right es -> map (ki &&& i) es
 
 reference (Resource _ i entity) (HasManyRef k ki) = (k .=) $
