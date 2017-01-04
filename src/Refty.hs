@@ -36,6 +36,7 @@ module Refty
   , refty
   ) where
 
+import Control.Arrow ((&&&))
 import Data.Aeson (ToJSON, ToJSONKey, toJSON, (.=), Value, object)
 import qualified Data.Map.Lazy as M
 import qualified Data.Text as T
@@ -61,47 +62,47 @@ data Reference a b = SelfRef Key
 data Builder = forall a b. (ToJSON a, ToJSON b, ToJSONKey b, Ord b) => Builder [Reference a b] (Resource a b)
 
 -- | JSON presenter.
-data Refty = Refty [Builder]
+newtype Refty = Refty [Builder]
 
 -- | Constructor function for Resource.
 resource :: (ToJSON a, ToJSON b, ToJSONKey b, Ord b) => Key -> Identifier a b -> Entity a -> Resource a b
-resource k i e = Resource k i e
+resource = Resource
 
 -- | Constructor function for Reference.
 selfRef :: (ToJSON a, ToJSON b, ToJSONKey b, Ord b) => Key -> Reference a b
-selfRef k = SelfRef k
+selfRef = SelfRef
 
 -- | Constructor function for Reference.
 hasOneRef :: (ToJSON a, ToJSON b, ToJSONKey b, Ord b) => Key -> Identifier a b -> Reference a b
-hasOneRef k i = HasOneRef k i
+hasOneRef = HasOneRef
 
 -- | Constructor function for Reference.
 hasManyRef :: (ToJSON a, ToJSON b, ToJSONKey b, Ord b) => Key -> Identifier a b -> Reference a b
-hasManyRef k i = HasManyRef k i
+hasManyRef = HasManyRef
 
 -- | Constructor function for Builder.
 builder :: (ToJSON a, ToJSON b, ToJSONKey b, Ord b)=> [Reference a b] -> Resource a b -> Builder
-builder refs res = Builder refs res
+builder = Builder
 
 -- | Constructor function for Refty.
 refty :: [Builder] -> Refty
-refty bs = Refty bs
+refty = Refty
 
 reference :: (ToJSON a, ToJSON b, ToJSONKey b, Ord b) => Resource a b -> Reference a b -> (T.Text, Value)
 reference (Resource _ i entity) (SelfRef k) =
   case entity of
-    Left e -> k .= (i e)
-    Right es -> k .= (map i es)
+    Left e -> k .= i e
+    Right es -> k .= map i es
 
 reference (Resource _ i entity) (HasOneRef k ki) = (k .=) $ M.fromList $
   case entity of
     Left e -> [(ki e, i e)]
-    Right es -> map (\e -> (ki e, i e)) es
+    Right es -> map (ki &&& i) es
 
 reference (Resource _ i entity) (HasManyRef k ki) = (k .=) $
   case entity of
     Left e ->
-      M.fromList $ [(ki e, [i e])]
+      M.fromList [(ki e, [i e])]
     Right es ->
       M.fromListWith (flip (++)) $ map (\e -> (ki e, [i e])) es
 
@@ -118,8 +119,8 @@ entities (Builder refs (Resource k i entity)) =
 
 instance ToJSON Refty where
   toJSON (Refty builders) = object
-    [ "references" .= (object $ concat $ map references builders)
-    , "entities" .= (object $ map entities builders)
+    [ "references" .= object (concatMap references builders)
+    , "entities" .= object (map entities builders)
     ]
 
 
