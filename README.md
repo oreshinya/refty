@@ -1,4 +1,5 @@
 # Refty
+[![Hackage](https://img.shields.io/hackage/v/refty.svg)](https://hackage.haskell.org/package/refty-0.1.0.0)
 
 Reference + Entity = Refty ♡
 
