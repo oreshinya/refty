@@ -1,13 +1,13 @@
 name:                refty
 version:             0.1.0.0
-synopsis:            Initial project template from stack
+synopsis:            Formatted JSON generator for API server inspired by normalizr.
 description:         Please see README.md
-homepage:            https://github.com/githubuser/refty#readme
-license:             BSD3
+homepage:            https://github.com/oreshinya/refty
+license:             MIT
 license-file:        LICENSE
-author:              Author name here
-maintainer:          example@example.com
-copyright:           2016 Author name here
+author:              Shinya Takahashi
+maintainer:          Shinya Takahashi <s.takahashi313@gmail.com>
+copyright:           (c) 2017 Shinya Takahashi
 category:            Web
 build-type:          Simple
 extra-source-files:  README.md
@@ -33,4 +33,4 @@ test-suite refty-test
 
 source-repository head
   type:     git
-  location: https://github.com/githubuser/refty
+  location: https://github.com/oreshinya/refty
