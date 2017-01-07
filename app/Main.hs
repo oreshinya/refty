@@ -1,12 +1,12 @@
+{-# LANGUAGE DeriveGeneric     #-}
 {-# LANGUAGE OverloadedStrings #-}
-{-# LANGUAGE DeriveGeneric #-}
 
 module Main where
 
-import Refty
-import Data.Aeson
-import Data.Text as T
-import GHC.Generics (Generic)
+import           Data.Aeson
+import           Data.Text    as T
+import           GHC.Generics (Generic)
+import           Refty
 
 data User = User { idOfUser :: Int, name :: T.Text } deriving (Generic, Show)
 data Comment = Comment { idOfComment :: Int, userId :: Int, body :: T.Text } deriving (Generic, Show)
@@ -32,11 +32,13 @@ items = [ Item 1 1
         , Item 3 2
         ]
 
-t = encode $ refty [ builder [selfRef "users"] $ resource "users" idOfUser $ Right users
-                   , builder [hasManyRef "userComments" userId] $ resource "comments" idOfComment $ Right comments
-                   , builder [hasOneRef "commentItems" commentId] $ resource "items" idOfItem $ Right items
+t = encode $ refty [ builder (resource "users" idOfUser $ Right users)
+                       [selfRef "users"]
+                   , builder (resource "comments" idOfComment $ Right comments)
+                       [hasManyRef "userComments" userId]
+                   , builder (resource "items" idOfItem $ Right items)
+                       [hasOneRef "commentItems" commentId]
                    ]
 
 main :: IO ()
 main = print t
-

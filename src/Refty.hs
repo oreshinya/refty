@@ -60,7 +60,7 @@ data Reference a b = SelfRef Key
                    | HasManyRef Key (Identifier a b)
 
 -- | Information builder related entity.
-data Builder = forall a b. (ToJSON a, ToJSON b, ToJSONKey b, Ord b) => Builder [Reference a b] (Resource a b)
+data Builder = forall a b. (ToJSON a, ToJSON b, ToJSONKey b, Ord b) => Builder (Resource a b) [Reference a b]
 
 -- | JSON presenter.
 newtype Refty = Refty [Builder]
@@ -82,7 +82,7 @@ hasManyRef :: (ToJSON a, ToJSON b, ToJSONKey b, Ord b) => Key -> Identifier a b 
 hasManyRef = HasManyRef
 
 -- | Constructor function for Builder.
-builder :: (ToJSON a, ToJSON b, ToJSONKey b, Ord b)=> [Reference a b] -> Resource a b -> Builder
+builder :: (ToJSON a, ToJSON b, ToJSONKey b, Ord b) => Resource a b -> [Reference a b] -> Builder
 builder = Builder
 
 -- | Constructor function for Refty.
@@ -108,13 +108,13 @@ reference (Resource _ i entity) (HasManyRef k ki) = (k .=) $
       M.fromListWith (flip (++)) $ map (\e -> (ki e, [i e])) es
 
 references :: Builder -> [(T.Text, Value)]
-references (Builder refs res) = map (reference res) refs
+references (Builder res refs) = map (reference res) refs
 
 entities :: Builder -> (T.Text, Value)
-entities (Builder refs (Resource k i entity)) =
+entities (Builder (Resource k i entity) refs) =
   case entity of
     Left e ->
-      entities $ builder refs $ resource k i $ Right [e]
+      entities $ builder (resource k i $ Right [e]) refs
     Right es ->
       (k .=) $ M.fromList $ map (\e -> (i e, e)) es
 
@@ -204,6 +204,6 @@ instance ToJSON Refty where
 -- >   ]
 -- >
 -- > encode $ refty
--- >   [ builder [ selfRef "users" ] $ resource "users" U.id $ Right users
--- >   , builder [ hasManyRef "userComments" C.userId ] $ resource "comments" C.id $ Right comments
+-- >   [ builder (resource "users" U.id $ Right users) [ selfRef "users" ]
+-- >   , builder (resource "comments" C.id $ Right comments) [ hasManyRef "userComments" C.userId ]
 -- >   ]
