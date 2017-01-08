@@ -95,17 +95,15 @@ reference (Resource _ i entity) (SelfRef k) =
     Left e   -> k .= i e
     Right es -> k .= map i es
 
-reference (Resource _ i entity) (HasOneRef k ki) = (k .=) $ M.fromList $
+reference (Resource rk i entity) ref@(HasOneRef k ki) =
   case entity of
-    Left e   -> [(ki e, i e)]
-    Right es -> map (ki &&& i) es
+    Left e   -> reference (resource rk i $ Right [e]) ref
+    Right es -> (k .=) $ M.fromList $ map (ki &&& i) es
 
-reference (Resource _ i entity) (HasManyRef k ki) = (k .=) $
+reference (Resource rk i entity) ref@(HasManyRef k ki) =
   case entity of
-    Left e ->
-      M.fromList [(ki e, [i e])]
-    Right es ->
-      M.fromListWith (flip (++)) $ map (\e -> (ki e, [i e])) es
+    Left e   -> reference (resource rk i $ Right [e]) ref
+    Right es -> (k .=) $ M.fromListWith (flip (++)) $ map (\e -> (ki e, [i e])) es
 
 references :: Builder -> [(T.Text, Value)]
 references (Builder res refs) = map (reference res) refs
