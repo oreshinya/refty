@@ -1,5 +1,5 @@
 name:                refty
-version:             0.1.0.1
+version:             0.2.0.0
 synopsis:            Formatted JSON generator for API server inspired by normalizr.
 description:         Please see README.md
 homepage:            https://github.com/oreshinya/refty
