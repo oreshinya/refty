@@ -107,12 +107,12 @@ reference (Resource _ i entity) (SelfRef k) =
 
 reference (Resource rk i entity) ref@(HasOneRef k ki) =
   case entity of
-    SingleEntity e -> reference (resource rk i $ ListEntity [e]) ref
+    SingleEntity e -> reference (resource rk i $ listEntity [e]) ref
     ListEntity es  -> (k .=) $ M.fromList $ map (ki &&& i) es
 
 reference (Resource rk i entity) ref@(HasManyRef k ki) =
   case entity of
-    SingleEntity e   -> reference (resource rk i $ ListEntity [e]) ref
+    SingleEntity e   -> reference (resource rk i $ listEntity [e]) ref
     ListEntity es -> (k .=) $ M.fromListWith (flip (++)) $ map (\e -> (ki e, [i e])) es
 
 references :: Builder -> [(T.Text, Value)]
@@ -122,7 +122,7 @@ entities :: Builder -> (T.Text, Value)
 entities (Builder (Resource k i entity) refs) =
   case entity of
     SingleEntity e ->
-      entities $ builder (resource k i $ ListEntity [e]) refs
+      entities $ builder (resource k i $ listEntity [e]) refs
     ListEntity es ->
       (k .=) $ M.fromList $ map (\e -> (i e, e)) es
 
@@ -212,6 +212,6 @@ instance ToJSON Refty where
 -- >   ]
 -- >
 -- > encode $ refty
--- >   [ builder (resource "users" U.id $ ListEntity users) [ selfRef "self" ]
--- >   , builder (resource "comments" C.id $ ListEntity comments) [ hasManyRef "userComments" C.userId ]
+-- >   [ builder (resource "users" U.id $ listEntity users) [ selfRef "self" ]
+-- >   , builder (resource "comments" C.id $ listEntity comments) [ hasManyRef "userComments" C.userId ]
 -- >   ]
